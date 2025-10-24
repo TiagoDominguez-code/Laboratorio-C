@@ -1,7 +1,8 @@
+// Librerias
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
-// #include <windows.h> // <-- Ya no es necesario
+
 
 // ---- CONSTANTES GLOBALES ----
 #define FILAS 22
@@ -10,7 +11,7 @@
 // ... (El resto de las constantes son iguales)
 #define INICIO 'I'
 #define FIN 'F'
-#define BARRO 'B'
+#define BARRO 'B '
 #define POZO 'P'
 #define CORTE 'X'
 #define PAVIMENTO '.'
@@ -30,8 +31,7 @@ void limpiarBufferEntrada();
 
 // ---- FUNCIÓN PRINCIPAL ----
 int main() {
-    // SetConsoleOutputCP(65001); // <-- Ya no es necesario
-
+    
     char mapa[FILAS][COLUMNAS];
     int cursor_y = 1;
     int cursor_x = 1;
@@ -46,6 +46,12 @@ int main() {
 
     seleccionarCelda(mapa, &cursor_y, &cursor_x, "Ahora, ubica la celda de FIN (F)");
     mapa[cursor_y][cursor_x] = FIN;
+   
+    system("cls");
+    mostrarMapa(mapa, -1, -1);
+    printf("\nPresiona cualquier tecla para continuar...");
+    _getch();
+
 
     printf("\nCuantas celdas con Barro (B) quieres ubicar? ");
     scanf("%d", &cantidad);
@@ -57,6 +63,14 @@ int main() {
         mapa[cursor_y][cursor_x] = BARRO;
     }
 
+    if (cantidad > 0) {
+        system("cls");
+        printf("--- Celdas de Barro ubicadas ---\n\n");
+        mostrarMapa(mapa, -1, -1);
+        printf("\nPresiona cualquier tecla para continuar...");
+        _getch();
+    }
+
     printf("\nCuantas celdas con Pozos (P) quieres ubicar? ");
     scanf("%d", &cantidad);
     limpiarBufferEntrada();
@@ -65,6 +79,13 @@ int main() {
         sprintf(mensaje, "Ubicando Pozo (%d de %d)", i + 1, cantidad);
         seleccionarCelda(mapa, &cursor_y, &cursor_x, mensaje);
         mapa[cursor_y][cursor_x] = POZO;
+    }
+    if (cantidad > 0) {
+        system("cls");
+        printf("--- Celdas de pozos ubicadas ---\n\n");
+        mostrarMapa(mapa, -1, -1);
+        printf("\nPresiona cualquier tecla para continuar...");
+        _getch();
     }
 
     printf("\nCuantas celdas con Corte (X) quieres ubicar? ");
@@ -76,6 +97,14 @@ int main() {
         seleccionarCelda(mapa, &cursor_y, &cursor_x, mensaje);
         mapa[cursor_y][cursor_x] = CORTE;
     }
+    if (cantidad > 0) {
+        system("cls");
+        printf("--- Celdas de corte ubicadas ---\n\n");
+        mostrarMapa(mapa, -1, -1);
+        printf("\nPresiona cualquier tecla para continuar...");
+        _getch();
+    }
+    
 
     system("cls");
     printf("--- MAPA FINAL CONFIGURADO ---\n\n");

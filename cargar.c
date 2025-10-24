@@ -106,7 +106,7 @@ void inicializarMapaConCiudad(char mapa[FILAS][COLUMNAS]) {
 // <-- FUNCIÓN MODIFICADA PARA USAR ASCII EXTENDIDO
 void mostrarMapa(char mapa[FILAS][COLUMNAS], int cursor_y, int cursor_x) {
     system("cls");
-    printf("                                  MAPA DE LA CIUDAD\n");
+    printf("                           MAPA DE LA CIUDAD\n");
     
     // Borde superior con los nuevos caracteres
     printf("   %c", 218); // Esquina ┌ (Alt + 218)

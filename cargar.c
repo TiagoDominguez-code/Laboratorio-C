@@ -119,7 +119,7 @@ void mostrarMapa(char mapa[FILAS][COLUMNAS], int cursor_y, int cursor_x) {
         printf("   %c ", 179); // Borde lateral │ (Alt + 179)
         for (int j = 0; j < COLUMNAS; j++) {
             if (i == cursor_y && j == cursor_x) {
-                printf("[%c] ", mapa[i][j]);
+                printf("[%c]", mapa[i][j]);
             } else {
                 printf(" %c ", mapa[i][j]);
             }

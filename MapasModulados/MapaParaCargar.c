@@ -65,6 +65,13 @@ int main() {
         mapa[cursor_y][cursor_x].tipo = BARRO;
         mapa[cursor_y][cursor_x].costo = 5;
     }
+    if (cantidad > 0) {
+        system("cls");
+        printf("--- Celdas de Barro ubicadas ---\n\n");
+        mostrarMapa(mapa, -1, -1);
+        printf("\nPresiona cualquier tecla para continuar...");
+        _getch();
+    }
 
     // Pozos
     printf("\nCuantas celdas con Pozos (P) quieres ubicar? ");
@@ -77,6 +84,13 @@ int main() {
         mapa[cursor_y][cursor_x].tipo = POZO;
         mapa[cursor_y][cursor_x].costo = 10;
     }
+    if (cantidad > 0) {
+        system("cls");
+        printf("--- Celdas de pozos ubicadas ---\n\n");
+        mostrarMapa(mapa, -1, -1);
+        printf("\nPresiona cualquier tecla para continuar...");
+        _getch();
+    }
 
     // Cortes
     printf("\nCuantas celdas con Corte (X) quieres ubicar? ");
@@ -88,6 +102,13 @@ int main() {
         seleccionarCelda(mapa, &cursor_y, &cursor_x, mensaje);
         mapa[cursor_y][cursor_x].tipo = CORTE;
         mapa[cursor_y][cursor_x].costo = -1; // Intransitable
+    }
+    if (cantidad > 0) {
+        system("cls");
+        printf("--- Celdas de corte ubicadas ---\n\n");
+        mostrarMapa(mapa, -1, -1);
+        printf("\nPresiona cualquier tecla para continuar...");
+        _getch();
     }
 
     system("cls");

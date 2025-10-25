@@ -20,24 +20,35 @@
 #define TECLA_DERECHA 77
 #define TECLA_ENTER 13
 
+// ---- ESTRUCTURA DE CELDA ----
+typedef struct {
+    char tipo;       // Visualización
+    int costo;       // Costo de movimiento
+    int g, h, f;     // Costos para A*
+    int visitado;
+    int padre_x, padre_y;
+} Celda;
+
 // ---- PROTOTIPOS ----
-void cargarMapaCiudad(char mapa[FILAS][COLUMNAS]);
-void mostrarMapa(char mapa[FILAS][COLUMNAS], int cursor_y, int cursor_x);
-void seleccionarCelda(char mapa[FILAS][COLUMNAS], int *cursor_y, int *cursor_x, const char *mensaje);
+void cargarMapaCiudad(Celda mapa[FILAS][COLUMNAS]);
+void mostrarMapa(Celda mapa[FILAS][COLUMNAS], int cursor_y, int cursor_x);
+void seleccionarCelda(Celda mapa[FILAS][COLUMNAS], int *cursor_y, int *cursor_x, const char *mensaje);
 void limpiarBufferEntrada();
 
 // ---- MAIN ----
 int main() {
-    char mapa[FILAS][COLUMNAS];
+    Celda mapa[FILAS][COLUMNAS];
     int cursor_y = 1, cursor_x = 1;
 
     cargarMapaCiudad(mapa);
 
     seleccionarCelda(mapa, &cursor_y, &cursor_x, "Ubica el INICIO (I) en una calle");
-    mapa[cursor_y][cursor_x] = INICIO;
+    mapa[cursor_y][cursor_x].tipo = INICIO;
+    mapa[cursor_y][cursor_x].costo = 1;
 
     seleccionarCelda(mapa, &cursor_y, &cursor_x, "Ubica el FIN (F)");
-    mapa[cursor_y][cursor_x] = FIN;
+    mapa[cursor_y][cursor_x].tipo = FIN;
+    mapa[cursor_y][cursor_x].costo = 1;
 
     system("cls");
     printf("--- MAPA FINAL CONFIGURADO ---\n\n");
@@ -49,44 +60,54 @@ int main() {
 
 // ---- FUNCIONES ----
 
-void cargarMapaCiudad(char mapa[FILAS][COLUMNAS]) {
+void cargarMapaCiudad(Celda mapa[FILAS][COLUMNAS]) {
     for (int i = 0; i < FILAS; i++) {
         for (int j = 0; j < COLUMNAS; j++) {
             if (i == 0 || i == FILAS - 1 || j == 0 || j == COLUMNAS - 1) {
-                mapa[i][j] = PAVIMENTO;
+                mapa[i][j].tipo = PAVIMENTO;
+                mapa[i][j].costo = 1;
             } else if (i % 3 == 0 || j % 3 == 0) {
-                mapa[i][j] = PAVIMENTO;
+                mapa[i][j].tipo = PAVIMENTO;
+                mapa[i][j].costo = 1;
             } else {
-                mapa[i][j] = CASA;
+                mapa[i][j].tipo = CASA;
+                mapa[i][j].costo = -1;
             }
+
+            mapa[i][j].g = mapa[i][j].h = mapa[i][j].f = 0;
+            mapa[i][j].visitado = 0;
+            mapa[i][j].padre_x = mapa[i][j].padre_y = -1;
         }
     }
 
     // Barro (B) en columna 6
     for (int i = 4; i < 18; i++) {
-        if (mapa[i][6] == PAVIMENTO) {
-            mapa[i][6] = BARRO;
+        if (mapa[i][6].tipo == PAVIMENTO) {
+            mapa[i][6].tipo = BARRO;
+            mapa[i][6].costo = 5;
         }
     }
 
     // Pozos (P) en fila 9
     for (int j = 5; j < 17; j++) {
-        if (mapa[9][j] == PAVIMENTO) {
-            mapa[9][j] = POZO;
+        if (mapa[9][j].tipo == PAVIMENTO) {
+            mapa[9][j].tipo = POZO;
+            mapa[9][j].costo = 10;
         }
     }
 
     // Cortes (X) en intersecciones
     for (int i = 6; i < 16; i += 3) {
         for (int j = 6; j < 16; j += 3) {
-            if (mapa[i][j] == PAVIMENTO) {
-                mapa[i][j] = CORTE;
+            if (mapa[i][j].tipo == PAVIMENTO) {
+                mapa[i][j].tipo = CORTE;
+                mapa[i][j].costo = -1;
             }
         }
     }
 }
 
-void mostrarMapa(char mapa[FILAS][COLUMNAS], int cursor_y, int cursor_x) {
+void mostrarMapa(Celda mapa[FILAS][COLUMNAS], int cursor_y, int cursor_x) {
     system("cls");
     printf("                           MAPA DE LA CIUDAD\n");
 
@@ -98,9 +119,9 @@ void mostrarMapa(char mapa[FILAS][COLUMNAS], int cursor_y, int cursor_x) {
         printf("   %c ", 179);
         for (int j = 0; j < COLUMNAS; j++) {
             if (i == cursor_y && j == cursor_x) {
-                printf("[%c]", mapa[i][j]);
+                printf("[%c]", mapa[i][j].tipo);
             } else {
-                printf(" %c ", mapa[i][j]);
+                printf(" %c ", mapa[i][j].tipo);
             }
         }
         printf("%c\n", 179);
@@ -111,7 +132,7 @@ void mostrarMapa(char mapa[FILAS][COLUMNAS], int cursor_y, int cursor_x) {
     printf("%c%c\n", 196, 217);
 }
 
-void seleccionarCelda(char mapa[FILAS][COLUMNAS], int *cursor_y, int *cursor_x, const char *mensaje) {
+void seleccionarCelda(Celda mapa[FILAS][COLUMNAS], int *cursor_y, int *cursor_x, const char *mensaje) {
     int tecla;
     while (1) {
         mostrarMapa(mapa, *cursor_y, *cursor_x);
@@ -128,7 +149,7 @@ void seleccionarCelda(char mapa[FILAS][COLUMNAS], int *cursor_y, int *cursor_x, 
                 case TECLA_DERECHA:   if (*cursor_x < COLUMNAS - 1) (*cursor_x)++; break;
             }
         } else if (tecla == TECLA_ENTER) {
-            if (mapa[*cursor_y][*cursor_x] == PAVIMENTO) {
+            if (mapa[*cursor_y][*cursor_x].tipo == PAVIMENTO) {
                 break;
             } else {
                 printf("\n\aError: No puedes colocar un item sobre una casa u obstáculo. Elige una calle ('.').");

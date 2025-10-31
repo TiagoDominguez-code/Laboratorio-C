@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>  // <-- Necesario para _kbhit()
+#include <conio.h>
 #include <math.h>     
 #include <limits.h>   
 #include <inttypes.h> 
@@ -44,8 +44,14 @@ void inicializarMapaConCiudad(Celda mapa[FILAS][COLUMNAS]);
 void mostrarMapa(Celda mapa[FILAS][COLUMNAS], int cursor_y, int cursor_x);
 void seleccionarCelda(Celda mapa[FILAS][COLUMNAS], int *cursor_y, int *cursor_x, const char *mensaje);
 void limpiarBufferEntrada();
-void cargarMapaPredefinido(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y, int* fin_x, int* fin_y);
 void personalizarMapa(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y, int* fin_x, int* fin_y);
+
+// --- NUEVOS PROTOTIPOS PARA SUBMENÚ ---
+int menuMapaPredefinido(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y, int* fin_x, int* fin_y);
+void cargarMapaPredefinido_1(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y, int* fin_x, int* fin_y);
+void cargarMapaPredefinido_2(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y, int* fin_x, int* fin_y);
+void cargarMapaPredefinido_3(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y, int* fin_x, int* fin_y);
+
 
 // ---- PROTOTIPOS (A*) ----
 void agregarAListaAbierta(Celda* celda);
@@ -60,13 +66,13 @@ int main() {
     Celda mapa[FILAS][COLUMNAS];
     int inicio_x, inicio_y, fin_x, fin_y;
     int opcion = 0;
-    int mapaCargado = 0; 
+    int mapaCargado = 0; // 1 si se cargó un mapa, 0 si no
 
     while (opcion != 3) {
         system("cls");
         printf("--- PROYECTO ALGORITMO A* ---\n");
-        printf("1. Cargar mapa predefinido (con obstaculos fijos)\n");
-        printf("2. Personalizar un nuevo mapa (elegir obstaculos)\n");
+        printf("1. Cargar mapa predefinido\n");
+        printf("2. Personalizar un nuevo mapa\n");
         printf("3. Salir\n");
         printf("------------------------------\n");
         printf("Seleccione una opcion: ");
@@ -76,16 +82,17 @@ int main() {
         }
         limpiarBufferEntrada();
 
-        mapaCargado = 0; 
+        mapaCargado = 0; // Reseteamos
 
         switch (opcion) {
             case 1:
-                cargarMapaPredefinido(mapa, &inicio_x, &inicio_y, &fin_x, &fin_y);
-                mapaCargado = 1;
+                // ¡¡CAMBIO!! Llamamos al NUEVO submenú
+                // Esta función devuelve 1 si se cargó un mapa, 0 si se presionó "Volver"
+                mapaCargado = menuMapaPredefinido(mapa, &inicio_x, &inicio_y, &fin_x, &fin_y);
                 break;
             case 2:
                 personalizarMapa(mapa, &inicio_x, &inicio_y, &fin_x, &fin_y);
-                mapaCargado = 1;
+                mapaCargado = 1; // Si personaliza, siempre carga
                 break;
             case 3:
                 printf("Saliendo...\n");
@@ -118,23 +125,19 @@ int main() {
                 mostrarMapa(mapa, -1, -1); 
             }
             
-
             printf("\nCalculo finalizado.\n");
             printf("Presione ENTER para SALIR del programa.\n");
             printf("Presione cualquier OTRA TECLA para VOLVER AL MENU...\n");
 
-            // Limpiamos CUALQUIER tecla que haya quedado en el buffer
-            // (por ejemplo, de una tecla de flecha que manda 2 chars)
+            // Limpiamos buffer de conio
             while (_kbhit()) {
                 _getch();
             }
-
-            int tecla_salida = _getch(); // Ahora sí espera
+            int tecla_salida = _getch(); 
             
             if (tecla_salida == TECLA_ENTER) {
-                opcion = 3; // Esto hará que el bucle while(opcion != 3) termine
+                opcion = 3; // Salir
             }
-            // Si no es ENTER, no hacemos nada, y el bucle repetirá el menú
         }
     } // Fin del bucle while
 
@@ -147,15 +150,54 @@ int main() {
 // ------------------------------------------------------------------
 
 /**
- * Carga un mapa con la estructura de ciudad y obstaculos fijos.
- * Pide al usuario el INICIO y FIN. 
+ * NUEVA FUNCIÓN: Muestra un submenú para elegir el mapa predefinido.
+ * Devuelve 1 si se carga un mapa, 0 si se vuelve al menú principal.
  */
-void cargarMapaPredefinido(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y, int* fin_x, int* fin_y) {
+int menuMapaPredefinido(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y, int* fin_x, int* fin_y) {
+    int opcion_mapa = 0;
+    while (1) {
+        system("cls");
+        printf("--- SELECCIONAR MAPA PREDEFINIDO ---\n");
+        printf("1. Mapa 1: El Muro\n");
+        printf("2. Mapa 2: Las Columnas\n");
+        printf("3. Mapa 3: El Rio de Barro\n");
+        printf("4. Volver al Menu Principal\n");
+        printf("------------------------------------\n");
+        printf("Seleccione una opcion: ");
+
+        if (scanf("%d", &opcion_mapa) != 1) {
+            opcion_mapa = 0;
+        }
+        limpiarBufferEntrada();
+
+        switch (opcion_mapa) {
+            case 1:
+                cargarMapaPredefinido_1(mapa, inicio_x, inicio_y, fin_x, fin_y);
+                return 1; // Devuelve 1 (éxito)
+            case 2:
+                cargarMapaPredefinido_2(mapa, inicio_x, inicio_y, fin_x, fin_y);
+                return 1; // Devuelve 1 (éxito)
+            case 3:
+                cargarMapaPredefinido_3(mapa, inicio_x, inicio_y, fin_x, fin_y);
+                return 1; // Devuelve 1 (éxito)
+            case 4:
+                return 0; // Devuelve 0 (volver)
+            default:
+                printf("Opcion invalida. Presione una tecla...");
+                _getch();
+        }
+    }
+}
+
+
+/**
+ * MAPA 1: El Muro (Tu mapa original)
+ */
+void cargarMapaPredefinido_1(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y, int* fin_x, int* fin_y) {
     
-    // 1. Crear la estructura base de ciudad
     inicializarMapaConCiudad(mapa);
     
-    // 2. Añadir obstaculos fijos
+    // Obstáculos fijos (El Muro)
     if (mapa[6][4].tipo == PAVIMENTO) { mapa[6][4].tipo = BARRO; mapa[6][4].costo = 5; }
     if (mapa[6][5].tipo == PAVIMENTO) { mapa[6][5].tipo = BARRO; mapa[6][5].costo = 5; }
     if (mapa[7][3].tipo == PAVIMENTO) { mapa[7][3].tipo = BARRO; mapa[7][3].costo = 5; }
@@ -168,61 +210,126 @@ void cargarMapaPredefinido(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inic
     if (mapa[10][12].tipo == PAVIMENTO) { mapa[10][12].tipo = CORTE; mapa[10][12].costo = -1; }
     if (mapa[11][12].tipo == PAVIMENTO) { mapa[11][12].tipo = CORTE; mapa[11][12].costo = -1; }
 
-    // 3. Mostrar el mapa con los obstáculos
     system("cls");
-    printf("--- MAPA PREDEFINIDO (CON OBSTACULOS) ---\n\n");
+    printf("--- MAPA 1: EL MURO (CON OBSTACULOS) ---\n\n");
     mostrarMapa(mapa, -1, -1);
-    printf("\nObstaculos fijos cargados.\n");
-    printf("Presiona una tecla para ubicar INICIO y FIN...");
+    printf("\nObstaculos fijos cargados.\nPresiona una tecla para ubicar INICIO y FIN...");
     _getch();
 
-    // 4. Pedir al usuario INICIO y FIN
-    int cursor_y = 1;
-    int cursor_x = 3; 
-
-    seleccionarCelda(mapa, &cursor_y, &cursor_x, "MAPA PREDEFINIDO: Usa las flechas para ubicar el INICIO (I)");
+    int cursor_y = 1, cursor_x = 3; 
+    seleccionarCelda(mapa, &cursor_y, &cursor_x, "MAPA 1: Usa las flechas para ubicar el INICIO (I)");
     mapa[cursor_y][cursor_x].tipo = INICIO;
     mapa[cursor_y][cursor_x].costo = 1;
-    *inicio_y = cursor_y; 
-    *inicio_x = cursor_x; 
+    *inicio_y = cursor_y; *inicio_x = cursor_x; 
 
-    seleccionarCelda(mapa, &cursor_y, &cursor_x, "MAPA PREDEFINIDO: Ahora, ubica la celda de FIN (F)");
+    seleccionarCelda(mapa, &cursor_y, &cursor_x, "MAPA 1: Ahora, ubica la celda de FIN (F)");
     mapa[cursor_y][cursor_x].tipo = FIN;
     mapa[cursor_y][cursor_x].costo = 1;
-    *fin_y = cursor_y; 
-    *fin_x = cursor_x; 
+    *fin_y = cursor_y; *fin_x = cursor_x; 
+}
 
-    printf("\nInicio y Fin configurados!\n");
+/**
+ * MAPA 2: Las Columnas (Nuevo)
+ */
+void cargarMapaPredefinido_2(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y, int* fin_x, int* fin_y) {
+    
+    inicializarMapaConCiudad(mapa);
+    
+    // Obstáculos fijos (Las Columnas)
+    for (int y = 3; y < 19; y++) {
+        if (mapa[y][6].tipo == PAVIMENTO) { mapa[y][6].tipo = CORTE; mapa[y][6].costo = -1; }
+        if (mapa[y][12].tipo == PAVIMENTO) { mapa[y][12].tipo = CORTE; mapa[y][12].costo = -1; }
+        if (mapa[y][18].tipo == PAVIMENTO) { mapa[y][18].tipo = CORTE; mapa[y][18].costo = -1; }
+    }
+    // Dejamos un hueco
+    if (mapa[9][12].tipo == CORTE) { mapa[9][12].tipo = PAVIMENTO; mapa[9][12].costo = 1; }
+    
+    // Pozos entre columnas
+    for (int y = 3; y < 19; y++) {
+         if (mapa[y][9].tipo == PAVIMENTO) { mapa[y][9].tipo = POZO; mapa[y][9].costo = 10; }
+         if (mapa[y][15].tipo == PAVIMENTO) { mapa[y][15].tipo = POZO; mapa[y][15].costo = 10; }
+    }
+
+    system("cls");
+    printf("--- MAPA 2: LAS COLUMNAS (CON OBSTACULOS) ---\n\n");
+    mostrarMapa(mapa, -1, -1);
+    printf("\nObstaculos fijos cargados.\nPresiona una tecla para ubicar INICIO y FIN...");
+    _getch();
+
+    int cursor_y = 1, cursor_x = 3; 
+    seleccionarCelda(mapa, &cursor_y, &cursor_x, "MAPA 2: Usa las flechas para ubicar el INICIO (I)");
+    mapa[cursor_y][cursor_x].tipo = INICIO;
+    mapa[cursor_y][cursor_x].costo = 1;
+    *inicio_y = cursor_y; *inicio_x = cursor_x; 
+
+    seleccionarCelda(mapa, &cursor_y, &cursor_x, "MAPA 2: Ahora, ubica la celda de FIN (F)");
+    mapa[cursor_y][cursor_x].tipo = FIN;
+    mapa[cursor_y][cursor_x].costo = 1;
+    *fin_y = cursor_y; *fin_x = cursor_x; 
+}
+
+/**
+ * MAPA 3: El Río de Barro (Nuevo)
+ */
+void cargarMapaPredefinido_3(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y, int* fin_x, int* fin_y) {
+    
+    inicializarMapaConCiudad(mapa);
+    
+    // Obstáculos fijos (Río de Barro)
+    for (int x = 3; x < 19; x++) {
+        if (mapa[9][x].tipo == PAVIMENTO) { mapa[9][x].tipo = BARRO; mapa[9][x].costo = 5; }
+        if (mapa[10][x].tipo == PAVIMENTO) { mapa[10][x].tipo = BARRO; mapa[10][x].costo = 5; }
+        if (mapa[11][x].tipo == PAVIMENTO) { mapa[11][x].tipo = BARRO; mapa[11][x].costo = 5; }
+    }
+    // Un "puente" cortado
+    if (mapa[10][9].tipo == BARRO) { mapa[10][9].tipo = CORTE; mapa[10][9].costo = -1; }
+    if (mapa[10][10].tipo == BARRO) { mapa[10][10].tipo = CORTE; mapa[10][10].costo = -1; }
+    if (mapa[10][11].tipo == BARRO) { mapa[10][11].tipo = CORTE; mapa[10][11].costo = -1; }
+    if (mapa[10][12].tipo == BARRO) { mapa[10][12].tipo = CORTE; mapa[10][12].costo = -1; }
+
+    system("cls");
+    printf("--- MAPA 3: EL RIO DE BARRO (CON OBSTACULOS) ---\n\n");
+    mostrarMapa(mapa, -1, -1);
+    printf("\nObstaculos fijos cargados.\nPresiona una tecla para ubicar INICIO y FIN...");
+    _getch();
+
+    int cursor_y = 1, cursor_x = 3; 
+    seleccionarCelda(mapa, &cursor_y, &cursor_x, "MAPA 3: Usa las flechas para ubicar el INICIO (I)");
+    mapa[cursor_y][cursor_x].tipo = INICIO;
+    mapa[cursor_y][cursor_x].costo = 1;
+    *inicio_y = cursor_y; *inicio_x = cursor_x; 
+
+    seleccionarCelda(mapa, &cursor_y, &cursor_x, "MAPA 3: Ahora, ubica la celda de FIN (F)");
+    mapa[cursor_y][cursor_x].tipo = FIN;
+    mapa[cursor_y][cursor_x].costo = 1;
+    *fin_y = cursor_y; *fin_x = cursor_x; 
 }
 
 
-
+/**
+ * Contiene tu código original de personalización.
+ */
 void personalizarMapa(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y, int* fin_x, int* fin_y) {
     int cursor_y = 1, cursor_x = 3, cantidad; 
 
-    // 1. Crear el mapa base de ciudad
     inicializarMapaConCiudad(mapa);
 
-    // 2. Seleccionar INICIO
     seleccionarCelda(mapa, &cursor_y, &cursor_x, "MAPA PERSONALIZADO: Usa las flechas para ubicar el INICIO (I)");
     mapa[cursor_y][cursor_x].tipo = INICIO;
     mapa[cursor_y][cursor_x].costo = 1;
-    *inicio_y = cursor_y; 
-    *inicio_x = cursor_x; 
+    *inicio_y = cursor_y; *inicio_x = cursor_x; 
 
-    // 3. Seleccionar FIN
     seleccionarCelda(mapa, &cursor_y, &cursor_x, "MAPA PERSONALIZADO: Ahora, ubica la celda de FIN (F)");
     mapa[cursor_y][cursor_x].tipo = FIN;
     mapa[cursor_y][cursor_x].costo = 1;
-    *fin_y = cursor_y; 
-    *fin_x = cursor_x; 
+    *fin_y = cursor_y; *fin_x = cursor_x; 
 
     system("cls");
     mostrarMapa(mapa, -1, -1);
     printf("\nPresiona cualquier tecla para anadir obstaculos...");
     _getch();
 
-    // 4. Añadir BARRO
+    // Añadir BARRO
     printf("\nCuantas celdas con Barro (B) quieres ubicar? ");
     scanf("%d", &cantidad);
     limpiarBufferEntrada();
@@ -241,7 +348,7 @@ void personalizarMapa(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y,
         _getch();
     }
 
-    // 5. Añadir POZOS
+    // Añadir POZOS
     printf("\nCuantas celdas con Pozos (P) quieres ubicar? ");
     scanf("%d", &cantidad);
     limpiarBufferEntrada();
@@ -260,7 +367,7 @@ void personalizarMapa(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y,
         _getch();
     }
 
-    // 6. Añadir CORTES
+    // Añadir CORTES
     printf("\nCuantas celdas con Corte (X) quieres ubicar? ");
     scanf("%d", &cantidad);
     limpiarBufferEntrada();
@@ -302,7 +409,7 @@ void inicializarMapaConCiudad(Celda mapa[FILAS][COLUMNAS]) {
                 mapa[i][j].costo = -1; 
             }
 
-            mapa[i][j].g = INT_MAX; // Inicializar g a infinito
+            mapa[i][j].g = INT_MAX; 
             mapa[i][j].h = 0;
             mapa[i][j].f = 0;
             mapa[i][j].visitado = 0;
@@ -319,12 +426,12 @@ void mostrarMapa(Celda mapa[FILAS][COLUMNAS], int cursor_y, int cursor_x) {
     system("cls");
     printf("                  MAPA DE LA CIUDAD\n"); 
 
-    printf("   %c", 218); // Esquina sup-izq
-    for (int i = 0; i < COLUMNAS; i++) printf("%c%c%c", 196, 196, 196); // Linea hor
-    printf("%c%c\n", 196, 191); // Esquina sup-der
+    printf("   %c", 218); 
+    for (int i = 0; i < COLUMNAS; i++) printf("%c%c%c", 196, 196, 196); 
+    printf("%c%c\n", 196, 191); 
 
     for (int i = 0; i < FILAS; i++) {
-        printf("   %c ", 179); // Linea ver
+        printf("   %c ", 179); 
         for (int j = 0; j < COLUMNAS; j++) {
             if (i == cursor_y && j == cursor_x) {
                 printf("[%c]", mapa[i][j].tipo);
@@ -332,12 +439,12 @@ void mostrarMapa(Celda mapa[FILAS][COLUMNAS], int cursor_y, int cursor_x) {
                 printf(" %c ", mapa[i][j].tipo);
             }
         }
-        printf("%c\n", 179); // Linea ver
+        printf("%c\n", 179); 
     }
 
-    printf("   %c", 192); // Esquina inf-izq
-    for (int i = 0; i < COLUMNAS; i++) printf("%c%c%c", 196, 196, 196); // Linea hor
-    printf("%c%c\n", 196, 217); // Esquina inf-der
+    printf("   %c", 192); 
+    for (int i = 0; i < COLUMNAS; i++) printf("%c%c%c", 196, 196, 196); 
+    printf("%c%c\n", 196, 217); 
 }
 
 /**
@@ -468,7 +575,6 @@ void reconstruirYMarcarCamino(Celda mapa[FILAS][COLUMNAS], int inicio_x, int ini
 int buscarCaminoAEstrella(Celda mapa[FILAS][COLUMNAS], int inicio_x, int inicio_y, int fin_x, int fin_y) {
     numNodosAbiertos = 0;
     
-    // Resetear los valores de A* para cada búsqueda
     for (int y = 0; y < FILAS; y++) {
         for (int x = 0; x < COLUMNAS; x++) {
             mapa[y][x].g = INT_MAX;
@@ -497,11 +603,10 @@ int buscarCaminoAEstrella(Celda mapa[FILAS][COLUMNAS], int inicio_x, int inicio_
             break;
         }
         if (actual == fin) {
-            return 1; // ¡Camino encontrado!
+            return 1; 
         }
         actual->visitado = 1;
 
-        // Usamos los valores guardados en la celda
         int actual_x = actual->x;
         int actual_y = actual->y;
 

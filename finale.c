@@ -118,9 +118,7 @@ int main() {
                 mostrarMapa(mapa, -1, -1); 
             }
             
-            // ------------------------------------------------------------------
-            // ---- ¡¡CORRECCIÓN!! ----
-            // ------------------------------------------------------------------
+
             printf("\nCalculo finalizado.\n");
             printf("Presione ENTER para SALIR del programa.\n");
             printf("Presione cualquier OTRA TECLA para VOLVER AL MENU...\n");
@@ -150,7 +148,7 @@ int main() {
 
 /**
  * Carga un mapa con la estructura de ciudad y obstaculos fijos.
- * Pide al usuario el INICIO y FIN. (Lógica corregida)
+ * Pide al usuario el INICIO y FIN. 
  */
 void cargarMapaPredefinido(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y, int* fin_x, int* fin_y) {
     
@@ -170,7 +168,7 @@ void cargarMapaPredefinido(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inic
     if (mapa[10][12].tipo == PAVIMENTO) { mapa[10][12].tipo = CORTE; mapa[10][12].costo = -1; }
     if (mapa[11][12].tipo == PAVIMENTO) { mapa[11][12].tipo = CORTE; mapa[11][12].costo = -1; }
 
-    // 3. Mostrar el mapa CON los obstáculos
+    // 3. Mostrar el mapa con los obstáculos
     system("cls");
     printf("--- MAPA PREDEFINIDO (CON OBSTACULOS) ---\n\n");
     mostrarMapa(mapa, -1, -1);
@@ -198,9 +196,7 @@ void cargarMapaPredefinido(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inic
 }
 
 
-/**
- * Contiene tu código original de personalización.
- */
+
 void personalizarMapa(Celda mapa[FILAS][COLUMNAS], int* inicio_x, int* inicio_y, int* fin_x, int* fin_y) {
     int cursor_y = 1, cursor_x = 3, cantidad; 
 
